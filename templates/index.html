@@ -7,14 +7,11 @@
   <div align="center">
   <h1>Benvenuto in Orsonet!</h1>
   <h2>Ultima rilevazione: {{time_str}}</h2>
-  {% if img_path %}
-  <a href="timelapse">
-  <img width="800" src="{{img_path}}"/>
-  </a>
-  <br/>
+  {% if temp_chart %}
+  <img width="800" src="data:image/jpeg;base64,{{temp_chart}}"/>
   {% endif %}
-  {% if chart_data %}
-  <img width="800" src="data:image/jpeg;base64,{{chart_data}}"/>
+  {% if humid_chart %}
+  <img width="800" src="data:image/jpeg;base64,{{humid_chart}}"/>
   {% endif %}
   </div>
 </body>

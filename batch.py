@@ -2,37 +2,36 @@ import os
 import datetime
 import re
 import csv
-import Adafruit_DHT
+from ruuvitag_sensor.ruuvi import RuuviTagSensor
 
-STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static') 
+STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
 DATA_PATH = os.path.join(STATIC_DIR, 'data.csv')
+TAGS = {
+  "FB:B7:8B:F3:32:53": "A: Camera da letto",
+  "F0:C9:25:26:3B:12": "B: Balcone",
+  "FC:52:08:88:81:E1": "C: Salotto"
+}
 
-def read_DS18B20():
-  path = '/sys/bus/w1/devices/28-0517c47426ff/w1_slave'
-  with open(path, 'r') as instrm:
-    content = instrm.read()
-  match = re.search('t=(\d+)', content)
-  return int(match.group(1))/1000.0 if match else None
+COL_TAG_NAME = "tag_name"
+COL_TEMP = "temp"
+COL_HUMIDITY = "humidity"
+COL_TIME = "time"
 
-def read_DHT11():
-  return Adafruit_DHT.read_retry(Adafruit_DHT.DHT11, 17)
-
-def capture_photo(path):
-  os.system('raspistill -f -q 10 -vf -o %s -ev +5 --brightness 55' % path)
-
-def find_last_file(folder, suffix):
-  last_timestamp, last_path = None, None
-  for relpath in os.listdir(folder):
-    if not relpath.endswith(suffix):
+def read_tags():
+  raw_tag_datas = RuuviTagSensor.get_data_for_sensors(TAGS.keys(), 5)
+  tag_datas = []
+  for mac, raw_tag_data in raw_tag_datas.items():
+    tag_name = TAGS.get(mac)
+    if not tag_name:
       continue
-    path = os.path.join(folder, relpath)
-    timestamp = os.path.getmtime(path)
-    if not last_timestamp or last_timestamp < timestamp:
-      last_timestamp, last_path = timestamp, path
-  return last_path
+    tag_datas.append({
+        COL_TAG_NAME: tag_name,
+        COL_TEMP: raw_tag_data.get("temperature"),
+        COL_HUMIDITY: raw_tag_data.get("humidity")})
+  return tag_datas
 
 def read_data():
-  try: 
+  try:
     with open(DATA_PATH) as csvfile:
       reader = csv.DictReader(csvfile)
       data = list(reader)
@@ -42,22 +41,22 @@ def read_data():
     pass
   return [], []
 
-def add_to_data(time_str, w_temp):
+def add_to_data(rows):
   fields, data = read_data()
-  new_fields = [f for f in ['time', 'w_temp'] if f not in fields]
-  fields.extend(new_fields)
+  for d in rows:
+    for key in d.keys():
+      if key not in fields:
+        fields.append(key)
   with open(DATA_PATH, 'w') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=fields)
     writer.writeheader()
     for d in data:
       writer.writerow(d)
-    writer.writerow({'time': time_str, 'w_temp': w_temp})
-
-def photo_relpath(time_str):
-  return 'photo_%s.jpg' % time_str
+    for d in rows:
+      writer.writerow(d)
 
 def datetime_to_str(dt):
-  return '%04d_%02d_%02d_%02d_%02d_%02d' % (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second) 
+  return '%04d_%02d_%02d_%02d_%02d_%02d' % (dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second)
 
 def str_to_datetime(time_str):
   return datetime.datetime(*[int(tok) for tok in time_str.split('_')])
@@ -65,11 +64,10 @@ def str_to_datetime(time_str):
 def run():
   dt = datetime.datetime.now()
   time_str = datetime_to_str(dt)
-  # photo_path = os.path.join(STATIC_DIR, photo_relpath(time_str))
-  # capture_photo(photo_path)
-  w_temp = read_DS18B20()
-  # humid, r_temp = read_DHT11()
-  add_to_data(time_str, w_temp)
+  tag_datas = read_tags()
+  for data in tag_datas:
+    data[COL_TIME] = time_str
+  add_to_data(tag_datas)
 
 if __name__ == '__main__':
   run()

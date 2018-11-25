@@ -1,1 +1,4 @@
+__pycache__/
+*.py[cod]
 static/*
+ruuvitag_sensor.log
