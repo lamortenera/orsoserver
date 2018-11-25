@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<head>
+<title>Orsonet</title>
+<link rel="shortcut icon" href="{{ url_for('static', filename='bear.png') }}">
+<script>
+var slideIndex = 0;
+
+function showSlides() {
+  var i;
+  var slides = document.getElementsByClassName("slide");
+  for (i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none"; 
+  }
+  slideIndex++;
+  if (slideIndex > slides.length) {slideIndex = 1} 
+  slides[slideIndex-1].style.display = "block"; 
+  setTimeout(showSlides, 500);
+}
+</script>
+</head>
+
+<body onload="showSlides()">
+<div align="center">
+<h1>Animazione</h1>
+{% if not data %}
+<h2>Non ho trovato dati</h2>
+{% endif %}
+{% if data %}
+{% for item in data %}
+<div class="slide">
+  <div class="numbertext">{{item['progress']}}</div>
+  <img width="800" src="{{item['imgsrc']}}">
+  <div text-align="center" class="text">{{item['caption']}}</div>
+</div>
+{% endfor %}
+{% endif %}
+</div>
+</body>
+</html>
+

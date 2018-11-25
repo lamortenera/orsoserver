@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<head>
+<title>Orsonet</title>
+<link rel="shortcut icon" href="{{ url_for('static', filename='bear.png') }}">
+</head>
+<body>
+  <div align="center">
+  <h1>Benvenuto in Orsonet!</h1>
+  <h2>Ultima rilevazione: {{time_str}}</h2>
+  {% if img_path %}
+  <a href="timelapse">
+  <img width="800" src="{{img_path}}"/>
+  </a>
+  <br/>
+  {% endif %}
+  {% if chart_data %}
+  <img width="800" src="data:image/jpeg;base64,{{chart_data}}"/>
+  {% endif %}
+  </div>
+</body>
+</html>
