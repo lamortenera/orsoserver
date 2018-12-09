@@ -1,4 +1,5 @@
 __pycache__/
 *.py[cod]
 static/*
+fonts/*
 ruuvitag_sensor.log

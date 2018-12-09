@@ -1,18 +1,29 @@
 <!DOCTYPE html>
 <head>
 <title>Orsonet</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 <link rel="shortcut icon" href="{{ url_for('static', filename='bear.png') }}">
 </head>
 <body>
-  <div align="center">
+  <div id="container" align="center">
   <h1>Benvenuto in Orsonet!</h1>
   <h2>Ultima rilevazione: {{time_str}}</h2>
-  {% if temp_chart %}
-  <img width="800" src="data:image/jpeg;base64,{{temp_chart}}"/>
-  {% endif %}
-  {% if humid_chart %}
-  <img width="800" src="data:image/jpeg;base64,{{humid_chart}}"/>
-  {% endif %}
+  <video width="800" height="600" controls>
+    <source src="{{video}}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
   </div>
 </body>
+<footer>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script type="text/javascript" defer>
+  var graphs = {{charts_json | safe}};
+  for (var graph of graphs){
+    var div = document.createElement('div');
+    div.setAttribute('id', graph.id);
+    document.getElementById('container').appendChild(div)
+    Plotly.plot(graph.id, graph.data, graph.layout);
+  }
+  </script>
+</footer>
 </html>
