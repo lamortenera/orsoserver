@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import datetime
 import base64
+import random
 import json
 from io import BytesIO
 
@@ -78,12 +79,15 @@ def index():
   if data:
     df = batch.read_dataframe()
     last_time = df.datetime.iloc[-1]
+    last_time_str = df.time.iloc[-1]
     temp_json = to_json(df, batch.COL_TEMP, 'temperatura', 'temp')
     humid_json = to_json(df, batch.COL_HUMIDITY, 'umidità', 'humid')
     sensors_json = combine_plots(temp_json, humid_json, 'sensori', 'sensors')
     charts_json = json.dumps([sensors_json])
   return flask.render_template('index.html',
-                               time_str=last_time,
+                               nocache=random.random(),
+                               last_time=last_time,
+                               time_str=last_time_str,
                                charts_json=charts_json,
                                video=video)
 

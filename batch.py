@@ -30,8 +30,7 @@ COL_TEMP = "temp"
 COL_HUMIDITY = "humidity"
 COL_TIME = "time"
 
-_FONTS_DIR = "/home/pi/Desktop/orsoserver/fonts/"
-_font = ImageFont.truetype(os.path.join(_FONTS_DIR, 'Roboto-Regular.ttf'), size=100)
+_FONT_PATH = "/home/pi/Desktop/orsoserver/fonts/Roboto-Regular.ttf"
 
 def read_tags():
   raw_tag_datas = RuuviTagSensor.get_data_for_sensors(TAGS.keys(), 5)
@@ -52,19 +51,17 @@ def photo_relpath(time_str):
 def capture_photo(path):
   os.system('raspistill -n -q 10 -vf -hf -o %s' % path)
 
-def label_photo(input_path, text, output_path):
-  img = Image.open(input_path)
-  draw = ImageDraw.Draw(img)
-  draw.text((50, 30), text, (255, 255, 255), font=_font)
-  img.save(output_path)
-
 def make_video(glob, output_path):
-  #ffmpeg -y -r 20 -pattern_type glob -i 'static/mod*.jpg' -c:v libx264  -pix_fmt yuv420p -s 800x600 -b:v 1M -bufsize 1M static/video2.mp4
   dirname, basename = os.path.split(output_path)
   tmp_path = os.path.join(dirname, 'tmp_' + basename)
-  os.system(("ffmpeg -y -r 20 -pattern_type glob -i '{}' -c:v libx264 "
-             "-pix_fmt yuv420p -s 800x600 -b:v 1M -bufsize 1M {}; "
-             " mv -f {} {}").format(glob, tmp_path, tmp_path, output_path))
+  text_spec = "fontfile={}:fontcolor=white:fontsize=100:x=50:y=30"
+  text_spec = text_spec.format(_FONT_PATH)
+  # To read the metadata in a png as seen by ffmpeg:
+  # ffprobe -show_frames static/photo_2018_12_14_01_50_04.jpg
+  os.system(("ffmpeg -y -r 40 -pattern_type glob -i '{}' "
+             "-vf drawtext={}:text=%{{metadata\\\\\\\\:DateTime}} "
+             "-c:v libx264 -pix_fmt yuv420p -s 800x600 -b:v 1M -bufsize 1M {}; "
+             " mv -f {} {}").format(glob, text_spec, tmp_path, tmp_path, output_path))
 
 def read_data():
   try:
@@ -121,9 +118,7 @@ def run():
   photo = photo_relpath(time_str)
   photo_path = os.path.join(STATIC_DIR, photo)
   capture_photo(photo_path)
-  mod_photo_path = os.path.join(STATIC_DIR, 'mod_' + photo)
-  label_photo(photo_path, dt.strftime("%Y-%m-%d %H:%M:%S"), mod_photo_path)
-  make_video(os.path.join(STATIC_DIR, 'mod*.jpg'), os.path.join(STATIC_DIR,
+  make_video(os.path.join(STATIC_DIR, 'photo*.jpg'), os.path.join(STATIC_DIR,
                                                                 'video.mp4'))
   for data in tag_datas:
     data[COL_TIME] = time_str

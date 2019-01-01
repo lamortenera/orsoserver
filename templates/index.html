@@ -7,9 +7,9 @@
 <body>
   <div id="container" align="center">
   <h1>Benvenuto in Orsonet!</h1>
-  <h2>Ultima rilevazione: {{time_str}}</h2>
+  <h2>Ultima rilevazione: {{last_time}}</h2>
   <video width="800" height="600" controls>
-    <source src="{{video}}" type="video/mp4">
+    <source src="{{video}}?version={{time_str}}" type="video/mp4">
     Your browser does not support the video tag.
   </video>
   </div>
