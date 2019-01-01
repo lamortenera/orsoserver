@@ -49,7 +49,7 @@ def photo_relpath(time_str):
   return 'photo_%s.jpg' % time_str
 
 def capture_photo(path):
-  os.system('raspistill -n -q 10 -vf -hf -o %s' % path)
+  os.system('raspistill -n -q 10 -o %s' % path)
 
 def make_video(glob, output_path):
   dirname, basename = os.path.split(output_path)
