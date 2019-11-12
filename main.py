@@ -12,7 +12,7 @@ import random
 import json
 from io import BytesIO
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_folder=batch.STATIC_DIR)
 _PLOTLY_COLORS = [
   '#1f77b4',
   '#ff7f0e',

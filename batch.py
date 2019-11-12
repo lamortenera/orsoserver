@@ -7,7 +7,7 @@ import numpy as np
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 
 
-STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
+STATIC_DIR = '/media/ssdusb/orsoserver/static'
 DATA_PATH = os.path.join(STATIC_DIR, 'data.csv')
 TAGS = {
   "FB:B7:8B:F3:32:53": {
