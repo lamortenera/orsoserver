@@ -6,21 +6,18 @@ import pandas as pd
 import numpy as np
 from ruuvitag_sensor.ruuvi import RuuviTagSensor
 
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), 'static')
 DATA_PATH = os.path.join(STATIC_DIR, 'data.csv')
 TAGS = {
   "FB:B7:8B:F3:32:53": {
-        "name": "A: Camera da letto",
+        "name": "A: Salotto",
         "temp_offset": -0.065709},
   "F0:C9:25:26:3B:12": {
-      "name": "B: Salotto",
+      "name": "B: Stanza degli hobby",
       "temp_offset":  0.065785 },
   "FC:52:08:88:81:E1": {
-      "name": "C: Balcone",
+      "name": "C: Camera da letto",
       "temp_offset": -0.000077}
 }
 
@@ -119,7 +116,7 @@ def run():
   photo_path = os.path.join(STATIC_DIR, photo)
   capture_photo(photo_path)
   make_video(os.path.join(STATIC_DIR, 'photo*.jpg'), os.path.join(STATIC_DIR,
-                                                                'video.mp4'))
+                                                                 'video.mp4'))
   for data in tag_datas:
     data[COL_TIME] = time_str
   add_to_data(tag_datas)
